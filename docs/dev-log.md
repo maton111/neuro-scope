@@ -189,9 +189,141 @@ File da creare/modificare:
 - `lib/vision/heuristics.ts` — `resolveState()` da metriche a `CognitiveState`
 - `hooks/use-session-metrics.ts` — accumula `SmoothedMetrics` nel tempo
 
+---
+
+## Fase 5 — Metrics engine ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `lib/vision/metrics.ts` — `computeMetrics()`:
+  - `RollingAverage` class (ring buffer, size configurabile)
+  - **motionLevel**: delta posizione nose tip tra frame → scalato ×2000, smooth su 15 frame
+  - **gazeStability**: variazione vettore (nose tip − midpoint occhi) → invertito, smooth su 20 frame
+  - **fatigueSignal**: Eye Aspect Ratio (EAR) sinistra + destra → `(0.30 - avgEar) / 0.20 * 100`, smooth su 25 frame
+  - **focusScore**: composito pesato (gaze 40% + motion_inv 30% + fatigue_inv 20% + confidence 10%), smooth su 20 frame
+  - `resetMetrics()` per pulire stato tra sessioni
+  - Usa landmark iris (468, 473) se disponibili, fallback su outer eye
+
+- `lib/vision/heuristics.ts` — `resolveState()`:
+  - `STATE_CONFIG` con label, colore hex, descrizione per ogni stato
+  - Priority order: `calibrating → tired → locked_in → distracted → focused → confused_genius`
+  - Soglie: locked_in (focus>84, motion<18, gaze>78), tired (fatigue>65), distracted (motion>55 || gaze<32)
+
+- `hooks/use-session-metrics.ts` — `useSessionMetrics()`:
+  - Import dinamici di metrics + heuristics (client-only)
+  - Reset automatico a inizio/fine sessione
+  - `processResult(FaceTrackingResult)` → aggiorna `current: SmoothedMetrics`
+  - Snapshots ogni 1s, max 300 (5 minuti a 1fps)
+  - Traccia `peakFocusScore`
+
+- `DashboardShell.tsx` aggiornato con UI metriche completa:
+  - State panel con colore dinamico per stato
+  - 4 MetricCard (focus, gaze, motion, fatigue) con barre e colori semantici
+  - Session stats: peak focus, avg focus, snapshot count, face confidence
+
+### Note tecniche
+
+- EAR normale ~0.25–0.35; valori < 0.10 indicano occhi chiusi
+- La smoothing window alta su fatigue (25 frame) evita flickering da singoli blink normali
+- `STATE_CONFIG` è importato direttamente (non dinamico) — non usa WASM, solo JS puro
+
+### Prossimo step
+
+→ **Fase 6 — Dashboard real-time** (live charts Recharts, layout dashboard completo, commentary feed)
+
+File da creare:
+- `components/charts/MetricChart.tsx` — line chart live con Recharts
+- `components/dashboard/StatePanel.tsx` — panel stato con animazioni Framer Motion
+- `components/dashboard/CommentaryFeed.tsx` — placeholder Phase 7
+- Refactor layout `DashboardShell` a griglia 2-colonne con chart
+
+---
+
+## Fase 6 — Dashboard real-time ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `components/charts/MetricChart.tsx` — AreaChart Recharts live:
+  - Dual area (focus + gaze) con gradient fill cyan/blue
+  - `isAnimationActive={false}` per evitare lag su aggiornamenti rapidi
+  - Tooltip custom glassmorphism
+  - Finestra configurabile (default 60 snapshot = ~60s)
+  - Empty state "Collecting data…" fino a 2+ punti
+
+- `components/dashboard/StatePanel.tsx` — pannello stato principale:
+  - Sfondo e bordo con colore dinamico per stato (transition 700ms)
+  - `AnimatePresence mode="wait"` per transizione label stato
+  - Icona stato con spring animation su cambio
+  - Focus score bar animata con gradient matching stato
+  - Peak score in linea con valore corrente
+
+- `components/dashboard/MetricCards.tsx` — 4 card (gaze, motion, fatigue, confidence):
+  - Colore semantico: verde/ambra/rosso in base a valore (con `invert` per metriche negative)
+  - `motion.p` per transizione colore animata
+  - Barra sottile con `motion.div` animate width
+
+- `components/dashboard/CommentaryFeed.tsx` — feed commenti (UI pronta per Phase 7):
+  - Mode switcher Roast/Coach/Corporate
+  - `AnimatePresence` per entrate/uscite voci
+  - Mostra ultime 5 voci in reverse order
+
+- `DashboardShell.tsx` refactored — layout 2-colonne responsive:
+  - `lg:grid-cols-[minmax(0,480px)_1fr]` con sticky header
+  - Colonna sinistra: webcam + "End Session" link
+  - Colonna destra: StatePanel → MetricCards → MetricChart → CommentaryFeed
+  - Timer sessione in header, VisionChip semplificato (STANDBY/LOADING/LIVE/ERROR)
+
+### Prossimo step
+
+→ **Fase 7 — Commentary engine**
+
+File da creare/modificare:
+- `lib/ai/commentary.ts` — implementazione completa con set di frasi per stato × mode
+- `DashboardShell.tsx` — integrare commentary con cooldown e feed
+
+---
+
+## Fase 7 — Commentary engine ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `lib/ai/commentary.ts` — motore commenti rule-based:
+  - 6 stati × 3 modalità = 18 pool di frasi, 5 frasi per pool (90 totali)
+  - Toni distinti: **Roast** (sarcastico/dark), **Coach** (motivazionale/actionable), **Corporate** (buzzword/absurdo)
+  - Anti-repetition: traccia ultimo indice per evitare la stessa frase due volte di fila
+  - `generateComment(state, mode)` → `CommentaryEntry` con id univoco
+
+- `hooks/use-commentary.ts` — hook con logica di timing:
+  - **Cooldown** 8 secondi tra un commento e il successivo
+  - **Stability check** 2.5 secondi: lo stato deve essere stabile prima di sparare
+  - Skip su `calibrating` (nessun commento quando la faccia non è visibile)
+  - Reset entries a inizio/fine sessione
+  - Import dinamico di `commentary.ts` (client-only)
+  - `setInterval` ogni 1s per il tick check (leggero)
+
+- `DashboardShell.tsx` aggiornato:
+  - `useCommentary` integrato, entries passate a `CommentaryFeed`
+  - Mode switcher Roast/Coach/Corporate funzionante (cambia il tono in real-time)
+
+### Prossimo step
+
+→ **Fase 8 — Session Summary**
+
+File da creare:
+- `app/(product)/summary/page.tsx` — pagina completa
+- `components/summary/SummaryCard.tsx` — card con score finale
+- `components/summary/StateBadge.tsx` — badge tipo "Tunnel Vision", "Sleep-Deprived Wizard"
+- `components/summary/StateTimeline.tsx` — timeline stati sessione
+
 ## Fasi future
 
-- Fase 5 — Metrics engine
+- Fase 8 — Session Summary
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time
