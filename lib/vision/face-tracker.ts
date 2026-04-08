@@ -29,7 +29,13 @@ export async function initFaceTracker(): Promise<void> {
 }
 
 export function processFrame(videoEl: HTMLVideoElement): FaceTrackingResult {
-  if (!faceLandmarker || videoEl.readyState < 2) {
+  // readyState >= 2 (HAVE_CURRENT_DATA) and actual dimensions required
+  if (
+    !faceLandmarker ||
+    videoEl.readyState < 2 ||
+    videoEl.videoWidth === 0 ||
+    videoEl.videoHeight === 0
+  ) {
     return { facePresent: false, confidence: 0, landmarks: null };
   }
 
@@ -38,7 +44,13 @@ export function processFrame(videoEl: HTMLVideoElement): FaceTrackingResult {
   const ts = now <= lastTimestamp ? lastTimestamp + 1 : now;
   lastTimestamp = ts;
 
-  const result = faceLandmarker.detectForVideo(videoEl, ts);
+  let result: { faceLandmarks?: Array<Array<{ x: number; y: number; z: number }>> };
+  try {
+    result = faceLandmarker.detectForVideo(videoEl, ts);
+  } catch {
+    return { facePresent: false, confidence: 0, landmarks: null };
+  }
+
   const face = result.faceLandmarks?.[0];
 
   if (!face || face.length === 0) {

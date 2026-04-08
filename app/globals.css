@@ -130,13 +130,16 @@
   }
   html {
     @apply font-sans;
-    scroll-behavior: smooth;
   }
   /* Thin scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(0,245,212,0.3); }
+  /* Smooth scroll only for in-page anchor links */
+  html:not([data-scroll-behavior]) a[href^="#"] {
+    scroll-behavior: smooth;
+  }
   /* Focus ring style */
   :focus-visible {
     outline: 2px solid rgba(0,245,212,0.5);
