@@ -365,9 +365,59 @@ File da creare:
 
 → **Fase 9 — Polish finale** (microinterazioni, skeleton, performance, metadata, og image)
 
+---
+
+## Fase 9 — Polish finale ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `app/layout.tsx` — metadata completo:
+  - `metadataBase` con `NEXT_PUBLIC_SITE_URL` env var (fallback vercel.app)
+  - `openGraph` e `twitter` card con titolo e descrizione ottimizzati
+  - `viewport.themeColor` → `#080808` (dark mobile browser bar)
+  - `keywords`, `authors`, `creator`, `robots`
+
+- `app/opengraph-image.tsx` — OG image generata con `ImageResponse` (edge runtime):
+  - Grid background + radial glow cyan
+  - Headline con accent color, sub monospace
+  - 4 floating chip decorativi (FOCUS, STATE, GAZE, FATIGUE)
+  - 1200×630px, contentType `image/png`
+
+- `app/favicon.svg` — SVG favicon custom:
+  - Background #080808, corner brackets cyan, cerchi concentrici con dot centrale
+  - Stile coerente con il design system
+
+- `app/not-found.tsx` — 404 page styled:
+  - "Signal lost." con stile NeuroScope
+  - CTA "Return to base" → `/`
+
+- `app/(product)/dashboard/loading.tsx` — skeleton loading:
+  - Skeleton animate-pulse per webcam panel + 4 metric card + chart
+  - Visibile durante hydration Next.js
+
+- `app/globals.css` — polish CSS:
+  - `scroll-behavior: smooth` per anchor links landing
+  - Custom scrollbar thin (4px, cyan on hover)
+  - `:focus-visible` ring cyan per keyboard navigation
+
+- `app/(product)/dashboard/page.tsx` — metadata specifica pagina
+
+- `next.config.ts` — CORS headers per `.wasm` files MediaPipe:
+  - `Cross-Origin-Embedder-Policy: require-corp`
+  - `Cross-Origin-Opener-Policy: same-origin`
+  - Necessario per SharedArrayBuffer in alcuni browser
+
+- `WebcamPanel.tsx` — `aria-label="Stop camera"` sul pulsante stop
+
+### Prossimo step
+
+→ **Fase 10 — Packaging portfolio** (README forte, screenshots, deploy Vercel)
+
 ## Fasi future
 
-- Fase 9 — Polish finale
+- Fase 10 — Packaging portfolio
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time

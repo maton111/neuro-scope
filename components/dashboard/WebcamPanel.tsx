@@ -79,6 +79,7 @@ export function WebcamPanel({ webcam, canvasRef, sessionDuration }: WebcamPanelP
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             onClick={stop}
+            aria-label="Stop camera"
             className="absolute bottom-4 right-4 flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-3 font-mono text-[10px] text-white/60 backdrop-blur-sm transition-colors hover:border-red-400/40 hover:text-red-400"
           >
             <CameraOff className="h-3 w-3" />

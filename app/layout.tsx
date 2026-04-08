@@ -17,6 +17,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://neuroscope.vercel.app"
+  ),
   title: "NeuroScope — Real-time Cognitive Presence Analysis",
   description:
     "Browser-based real-time system that analyzes your apparent cognitive state while you work. Face tracking, synthetic metrics, live dashboard. No data leaves your browser.",
