@@ -1,259 +1,223 @@
 # NeuroScope
 
-> Real-time cognitive presence analysis powered by computer vision.
+**Real-time cognitive presence analysis — entirely in your browser.**
+
+NeuroScope uses your webcam and computer vision to track facial signals while you work, translating them into live productivity metrics, simulated cognitive states, and contextual commentary. No backend. No uploads. No scientific accuracy — but a lot of convincing UI.
+
+> Built as a portfolio project to demonstrate real-time systems, computer vision integration, and UI/UX polish in a browser-first architecture.
 
 ---
 
-## 🧠 Overview
+## Live Demo
 
-NeuroScope is a browser-based, real-time system that analyzes your *apparent cognitive state* while you work.
-
-Using your webcam, it detects facial signals and transforms them into stylized productivity metrics, live feedback, and dynamic commentary.
-
-It does not aim to be scientifically accurate.
-
-It aims to feel **convincingly intelligent**.
+> **[neuroscope.vercel.app](https://neuroscope.vercel.app)**
 
 ---
 
-## ✨ Demo Concept
+## What it does
 
-* Real-time face tracking
-* Live "focus score"
-* Simulated cognitive states
-* AI-generated commentary (roast / coach / corporate modes)
-* Cinematic dashboard
-* Session recap with shareable results
-
----
-
-## 🚀 Why this project exists
-
-This is a **portfolio project** designed to demonstrate:
-
-* real-time systems in the browser
-* computer vision integration
-* UI/UX polish and motion design
-* modular frontend architecture
-* product thinking and execution
-
-It intentionally prioritizes:
-
-> perception, design, and experience over real-world utility
+| Feature | Description |
+|---|---|
+| **Face Tracking** | MediaPipe Face Landmarker processes 468 facial landmarks per frame via WebAssembly |
+| **Synthetic Metrics** | Focus Score, Gaze Stability, Motion Level, Fatigue Signal — smoothed with rolling averages |
+| **Cognitive States** | Locked In · Focused · Distracted · Tired · Confused Genius · Calibrating |
+| **Commentary Engine** | Rule-based feedback system in three tones: Roast, Coach, Corporate |
+| **Live Dashboard** | Real-time charts, animated metric cards, state panel with color transitions |
+| **Session Summary** | Recap with badges, state timeline, breakdown chart, and a verdict |
 
 ---
 
-## 🧩 Core Features
+## Screenshots
 
-### 🎥 Webcam Analysis
-
-* Face detection via MediaPipe
-* Landmark extraction
-* Frame-by-frame processing
-
-### 📊 Synthetic Metrics Engine
-
-Transforms raw signals into believable metrics:
-
-* Focus Score
-* Motion Level
-* Gaze Stability
-* Fatigue Signal
-
-### 🧠 Cognitive State Simulation
-
-Maps metrics into states like:
-
-* Focused
-* Distracted
-* Locked In
-* Fatigued
-* Confused Genius
-
-### 💬 Commentary Engine
-
-Dynamic feedback system with multiple modes:
-
-* Roast Mode
-* Coach Mode
-* Corporate Mode
-
-### 📈 Real-Time Dashboard
-
-* Live updating charts
-* Status panels
-* Animated metric cards
-
-### 🧾 Session Summary
-
-* Final score
-* Timeline of states
-* Highlight moments
-* Shareable output
+| Landing | Dashboard | Summary |
+|---------|-----------|---------|
+| *(add screenshot)* | *(add screenshot)* | *(add screenshot)* |
 
 ---
 
-## 🏗️ Tech Stack
-
-### Frontend
-
-* Next.js
-* TypeScript
-* Tailwind CSS
-* shadcn/ui
-* Framer Motion
-
-### Computer Vision
-
-* MediaPipe (Face Landmarker / Vision Tasks)
-
-### Data Visualization
-
-* Recharts / D3
-
-### Backend (lightweight)
-
-* Next.js API routes
-
-### Deployment
-
-* Vercel
-
----
-
-## 🧠 How it works
-
-1. The user enables webcam access
-2. Frames are processed in real-time in the browser
-3. Facial landmarks are extracted
-4. Signals are converted into synthetic metrics
-5. Metrics are smoothed over time
-6. A dominant "state" is derived
-7. Commentary is generated
-8. UI updates continuously
-
----
-
-## ⚙️ Architecture
+## Architecture
 
 ```
 Webcam → Face Tracker → Metrics Engine → State Resolver → Commentary Engine → UI
+           (MediaPipe)   (rolling avg)    (heuristics)      (rule-based)
 ```
 
-### Key Principles
+Everything runs client-side. The pipeline looks like this:
 
-* Browser-first processing
-* No heavy backend dependency
-* Deterministic logic + perception design
-* Modular components
+```
+useWebcam          — stream lifecycle, permission states, cleanup
+useVisionLoop      — rAF loop throttled to 15fps, feeds frames to face tracker
+useSessionMetrics  — derives SmoothedMetrics from FaceTrackingResult each frame
+useCommentary      — fires contextual comments with cooldown + state stability checks
+```
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 + shadcn/ui |
+| Animation | Framer Motion |
+| Charts | Recharts |
+| Computer Vision | MediaPipe Tasks Vision — Face Landmarker |
+| Deploy | Vercel |
+
+---
+
+## Technical Highlights
+
+**Browser-first processing** — MediaPipe runs via WebAssembly entirely client-side. No video frames are sent to any server.
+
+**Heuristic metrics pipeline** — Raw facial signals (nose tip delta, Eye Aspect Ratio, gaze vector variance) are normalized, smoothed with configurable rolling averages, and composed into a focus score. Deterministic, stable, and visually convincing.
+
+**State machine** — Six cognitive states mapped from metric thresholds in a priority-ordered resolver. State transitions trigger commentary and UI color changes.
+
+**Commentary engine** — 90 handcrafted phrases across 18 pools (6 states × 3 tones). Anti-repetition tracking, cooldown gating, and stability checks ensure comments feel contextual rather than random.
+
+**No memory leaks** — `useWebcam` stops all media tracks and clears `srcObject` on cleanup. `useVisionLoop` cancels `requestAnimationFrame` and calls `destroyFaceTracker()` on unmount.
+
+---
+
+## Project Structure
 
 ```
 /app
-  /(marketing)
-  /(product)
+  /(marketing)/page.tsx       — Landing page
+  /(product)/dashboard/       — Live session
+  /(product)/summary/         — Session recap
+  /opengraph-image.tsx        — OG image (edge runtime)
+
 /components
+  /landing/                   — Hero, FeatureCards, MockDashboardPreview, HowItWorks, CTA
+  /dashboard/                 — WebcamPanel, StatePanel, MetricCards, CommentaryFeed, DashboardShell
+  /charts/                    — MetricChart (Recharts area chart)
+  /summary/                   — SummaryStats, BadgeDisplay, StateTimeline
+
 /lib
+  /vision/
+    face-tracker.ts           — MediaPipe adapter (singleton, GPU delegate)
+    metrics.ts                — RollingAverage, computeMetrics, resetMetrics
+    heuristics.ts             — resolveState, STATE_CONFIG
+    canvas-draw.ts            — Landmark rendering on canvas overlay
+  /ai/
+    commentary.ts             — generateComment, phrase pools
+  /utils/
+    session-storage.ts        — localStorage serialization, deriveStats
+    badges.ts                 — assignBadges, generateVerdict
+
 /hooks
-/docs
+  use-webcam.ts               — Stream lifecycle, permission state machine
+  use-vision-loop.ts          — rAF loop, 15fps throttle, dynamic imports
+  use-session-metrics.ts      — Metric accumulation, snapshot history
+  use-commentary.ts           — Cooldown + stability gating
 ```
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
-### 1. Clone repo
-
-```
-git clone https://github.com/your-username/neuroscope
+```bash
+# 1. Clone
+git clone https://github.com/mattiarchina/neuroscope
 cd neuroscope
-```
 
-### 2. Install dependencies
-
-```
+# 2. Install
 npm install
-```
 
-### 3. Run dev server
+# 3. Environment (optional — only needed for OG image on custom domain)
+cp .env.example .env.local
+# Edit NEXT_PUBLIC_SITE_URL if deploying to a custom domain
 
-```
+# 4. Run
 npm run dev
+# → http://localhost:3000
 ```
 
-### 4. Open
+**Requirements:** A browser with webcam access. Chrome or Edge recommended for best WebAssembly performance.
 
+---
+
+## Deploy to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
 ```
-http://localhost:3000
-```
+
+Set `NEXT_PUBLIC_SITE_URL` to your Vercel deployment URL in the project environment variables.
 
 ---
 
-## 🧪 Notes on Accuracy
+## Metrics: how they work
 
-NeuroScope is **not a scientific tool**.
+| Metric | Signal | Formula |
+|--------|--------|---------|
+| **Motion Level** | Nose tip Δposition between frames | `delta × 2000`, clamp 0–100 |
+| **Gaze Stability** | Nose–midpoint vector variance | `100 − (Δvector × 3000)` |
+| **Fatigue Signal** | Eye Aspect Ratio (EAR) | `(0.30 − avgEAR) / 0.20 × 100` |
+| **Focus Score** | Composite | `gaze×0.4 + (100−motion)×0.3 + (100−fatigue)×0.2 + confidence×0.1` |
 
-All metrics are:
-
-* heuristic-based
-* intentionally stylized
-* optimized for UX rather than correctness
-
----
-
-## 🎨 Design Philosophy
-
-The goal is to create something that feels:
-
-* intelligent
-* premium
-* slightly intimidating
-* visually satisfying
-
-Even when the underlying logic is simple.
+All metrics are smoothed with rolling averages (15–25 frame windows).
 
 ---
 
-## 📦 Future Improvements
+## Cognitive States
 
-* Voice feedback
-* Session history
-* Exportable reports
-* Multiplayer comparison (leaderboard)
-* More advanced LLM integration
-* Theme system (cyberpunk / corporate / minimal)
-
----
-
-## 📸 Screenshots
-
-*(add here)*
+| State | Trigger |
+|-------|---------|
+| **Locked In** | focus > 84, motion < 18, gaze > 78 |
+| **Focused** | focus > 60, motion < 40 |
+| **Distracted** | motion > 55 or gaze < 32 |
+| **Tired** | fatigue > 65 |
+| **Confused Genius** | focus 40–70, motion > 25 |
+| **Calibrating** | face not detected or confidence < 0.3 |
 
 ---
 
-## 🎥 Demo
+## Session Badges
 
-*(add video link here)*
+| Badge | Condition |
+|-------|-----------|
+| Tunnel Vision | ≥40% session in Locked In |
+| The Professional | ≥50% session Focused |
+| Sleep-Deprived Wizard | ≥35% session Tired |
+| Chaos Agent | ≥40% session Distracted |
+| Confused Genius | ≥30% session Confused Genius |
+| Ghost Mode | ≥30% session Calibrating |
+| Peak Performer | Peak focus score ≥90 |
+| Marathon Runner | Session ≥15 minutes |
 
 ---
 
-## 🧑‍💻 Author
+## Notes on accuracy
 
-Mattia Archina
+NeuroScope is not a scientific tool. All metrics are heuristic-based, intentionally approximate, and optimized for UX rather than clinical correctness. The system is designed to feel intelligent, not to be intelligent.
 
 ---
 
-## 📄 License
+## Future improvements
+
+- LLM-generated commentary (Claude API / streaming)
+- Session history with Supabase
+- Shareable recap image export
+- Voice feedback
+- Multiplayer / leaderboard
+- Theme switching (cyberpunk · minimal · corporate)
+
+---
+
+## Author
+
+**Mattia Archina**
+
+---
+
+## License
 
 MIT
-
----
-
-## 💡 Final Note
-
-This project is less about measuring reality and more about designing a convincing illusion of intelligence.
-
-And sometimes, that’s exactly what makes something memorable.

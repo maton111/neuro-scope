@@ -415,9 +415,45 @@ File da creare:
 
 → **Fase 10 — Packaging portfolio** (README forte, screenshots, deploy Vercel)
 
-## Fasi future
+---
 
-- Fase 10 — Packaging portfolio
+## Fase 10 — Packaging portfolio ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `README.md` riscritto come portfolio piece completo:
+  - Tabella feature, architecture diagram ASCII, tech stack table
+  - Sezione "Technical Highlights" con spiegazione delle scelte tecniche
+  - Tabella metriche con formule, tabella stati con soglie, tabella badge con condizioni
+  - Getting started, deploy Vercel, future improvements
+  - Placeholder screenshots section
+
+- `docs/case-study.md` — case study narrativo:
+  - Brief, concept, key decisions (browser-first, synthetic metrics, commentary, state machine)
+  - Architecture choices con rationale (MediaPipe vs face-api.js, Recharts vs D3, localStorage vs Zustand)
+  - "What this demonstrates" e "What it deliberately isn't"
+
+- `docs/roadmap.md` — roadmap con status aggiornato (tutte le fasi ✅ Done) + V2 backlog
+
+- `.env.example` — documentazione variabili d'ambiente
+
+- `package.json` — nome corretto da "neuro-scope-tmp" a "neuroscope"
+
+- **Fix font build**: Google Fonts non raggiungibile in build locale → migrato da `next/font/google` a pacchetto `geist` locale (auto-hosted, nessuna fetch a runtime)
+
+### Note tecniche
+
+- `geist` npm package include i font come file locali — zero dipendenza da Google Fonts CDN a build time
+- `NEXT_PUBLIC_SITE_URL` env var usata per `metadataBase` — default su `neuroscope.vercel.app`
+- Build output finale: 4 route (/ /_not-found /dashboard /summary) + 1 dynamic (/opengraph-image)
+
+---
+
+## ✅ PROGETTO MVP COMPLETO
+
+Tutte e 10 le fasi sono state completate. Il progetto è pronto per il deploy su Vercel.
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time
