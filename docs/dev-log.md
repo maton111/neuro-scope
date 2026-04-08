@@ -137,9 +137,61 @@ File da creare/modificare:
 - `hooks/use-vision-loop.ts` — rAF loop che alimenta il face tracker
 - `components/dashboard/WebcamPanel.tsx` — il canvas verrà disegnato dalla vision loop
 
+---
+
+## Fase 4 — Vision engine (MediaPipe) ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `lib/vision/face-tracker.ts` — adapter MediaPipe Face Landmarker:
+  - Singleton module-level: init una volta sola per sessione
+  - `initFaceTracker()`: carica WASM da CDN jsdelivr + model da storage.googleapis.com
+  - `processFrame(video)`: chiama `detectForVideo()` con timestamp monotono, restituisce `FaceTrackingResult`
+  - Confidence derivata dalla percentuale di landmark con `|z| < 0.2` (approssimazione ragionevole)
+  - `destroyFaceTracker()`: cleanup con `close()`
+
+- `lib/vision/canvas-draw.ts` — disegno landmark su canvas:
+  - Landmark dots ogni 4 punti (performance)
+  - Contorni occhi sinistro/destro con indici specifici
+  - Contorno labbra esterno
+  - Face oval tratteggiata da bounding box dei landmark
+  - Palette `rgba(0,245,212,x)` coerente col design
+
+- `hooks/use-vision-loop.ts` — loop rAF:
+  - Throttle a 15 FPS (`FRAME_INTERVAL = 66ms`)
+  - Stato: `idle → initializing → ready | error`
+  - Import dinamici (`await import`) per tenere MediaPipe client-only
+  - Canvas ridimensionato automaticamente a `video.videoWidth/Height` ogni frame
+  - Stop pulito: cancella rAF, pulisce canvas
+  - Cleanup su unmount: `destroyFaceTracker()`
+
+- `DashboardShell.tsx` aggiornato:
+  - Integra `useVisionLoop` con callback `onResult`
+  - Debug panel: face present, confidence, numero landmark
+  - `VisionStatusChip` in header: LOADING MODEL → TRACKING → VISION ERROR
+
+### Note tecniche
+
+- MediaPipe WASM CDN: `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm`
+- Il model URL di Google Storage è pubblico e non richiede auth
+- `runningMode: "VIDEO"` obbligatorio (non `IMAGE`) per `detectForVideo()`
+- Timestamp deve essere strettamente crescente — fix con `lastTimestamp + 1` se necessario
+- Import dinamici in `useVisionLoop` evitano SSR issues con WebAssembly
+
+### Prossimo step
+
+→ **Fase 5 — Metrics engine**
+
+File da creare/modificare:
+- `lib/vision/metrics.ts` — `computeMetrics()` con rolling average
+- `lib/vision/heuristics.ts` — `resolveState()` da metriche a `CognitiveState`
+- `hooks/use-session-metrics.ts` — accumula `SmoothedMetrics` nel tempo
+
 ## Fasi future
 
-- Fase 4 — Vision engine (MediaPipe)
+- Fase 5 — Metrics engine
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time
