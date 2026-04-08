@@ -90,10 +90,56 @@ File da creare:
 - `hooks/use-webcam.ts` — implementazione completa
 - `components/dashboard/WebcamPanel.tsx` — video + canvas overlay
 
+---
+
+## Fase 3 — Webcam pipeline ✅ COMPLETATA
+
+**Data:** 2026-04-08
+
+### Cosa è stato fatto
+
+- `hooks/use-webcam.ts` — hook completo:
+  - Stato: `idle | requesting | granted | denied | unavailable`
+  - `start()`: `getUserMedia` con constraint video 1280×720, face-mode user
+  - `stop()`: ferma tutti i tracks, libera `srcObject`, reset stato
+  - Cleanup automatico su unmount (useEffect return)
+  - Gestione errori tipizzata: `NotAllowedError` → denied, `NotFoundError` → unavailable
+  - `videoRef` e `streamRef` interni, nessun memory leak
+
+- `components/dashboard/WebcamPanel.tsx` — panel webcam completo:
+  - `<video>` sempre montato (ref disponibile), visibile solo quando streaming
+  - `<canvas>` overlay per i landmark (ref passato da fuori, usato dalla vision loop in Fase 4)
+  - Video con `transform: scaleX(-1)` (mirror) per UX naturale
+  - Corner brackets decorativi + scan line animata + status bar LIVE con timer
+  - Overlay stati: idle (pulsante Start), requesting (spinner), denied/unavailable (errore + retry)
+  - Stop button in overlay quando streaming
+
+- `components/dashboard/DashboardShell.tsx` — shell dashboard:
+  - Integra `useWebcam` + `WebcamPanel`
+  - Timer sessione con `setInterval` legato a `isStreaming`
+  - `canvasRef` pronto per la vision loop (Fase 4)
+  - Placeholder metrics panel (Fase 6)
+
+- `app/(product)/dashboard/page.tsx` — delega a `DashboardShell` (Server Component wrapper)
+
+### Note tecniche
+
+- `<video>` deve avere `playsInline` e `muted` per autoplay su Safari/mobile
+- Il canvas va dimensionato uguale al video nel vision loop (Fase 4) tramite `videoRef.current.videoWidth/Height`
+- Mirror con `scaleX(-1)` applicato sia a video che canvas per coerenza overlay
+
+### Prossimo step
+
+→ **Fase 4 — Vision engine (MediaPipe Face Landmarker)**
+
+File da creare/modificare:
+- `lib/vision/face-tracker.ts` — implementazione completa con MediaPipe
+- `hooks/use-vision-loop.ts` — rAF loop che alimenta il face tracker
+- `components/dashboard/WebcamPanel.tsx` — il canvas verrà disegnato dalla vision loop
+
 ## Fasi future
 
-- Fase 3 — Webcam pipeline
-- Fase 3 — Webcam pipeline
+- Fase 4 — Vision engine (MediaPipe)
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time
