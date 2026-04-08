@@ -13,6 +13,7 @@ import { MetricCards } from "@/components/dashboard/MetricCards";
 import { MetricChart } from "@/components/charts/MetricChart";
 import { CommentaryFeed } from "@/components/dashboard/CommentaryFeed";
 import type { CommentaryMode, FaceTrackingResult } from "@/lib/types";
+import { saveSession } from "@/lib/utils/session-storage";
 
 export function DashboardShell() {
   const webcam = useWebcam();
@@ -83,7 +84,15 @@ export function DashboardShell() {
           {webcam.isStreaming && snapshots.length > 0 && (
             <Link
               href="/summary"
-              onClick={webcam.stop}
+              onClick={() => {
+                saveSession({
+                  startedAt: Date.now() - duration * 1000,
+                  endedAt: Date.now(),
+                  snapshots,
+                  peakFocusScore,
+                });
+                webcam.stop();
+              }}
               className="flex h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/4 font-mono text-xs text-muted-foreground transition-colors hover:border-[#00f5d4]/20 hover:text-[#00f5d4]"
             >
               End Session → View Summary

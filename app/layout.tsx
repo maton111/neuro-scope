@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,10 +12,32 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#080808",
+};
+
 export const metadata: Metadata = {
   title: "NeuroScope — Real-time Cognitive Presence Analysis",
   description:
-    "Browser-based real-time system that analyzes your apparent cognitive state while you work. Face tracking, synthetic metrics, live dashboard.",
+    "Browser-based real-time system that analyzes your apparent cognitive state while you work. Face tracking, synthetic metrics, live dashboard. No data leaves your browser.",
+  keywords: ["focus tracker", "productivity", "computer vision", "mediapipe", "real-time", "cognitive state"],
+  authors: [{ name: "Mattia Archina" }],
+  creator: "Mattia Archina",
+  openGraph: {
+    title: "NeuroScope — Real-time Cognitive Presence Analysis",
+    description:
+      "Your face. Your focus. Your dashboard. Real-time cognitive telemetry powered by computer vision — entirely in your browser.",
+    type: "website",
+    siteName: "NeuroScope",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NeuroScope — Real-time Cognitive Presence Analysis",
+    description:
+      "Your face. Your focus. Your dashboard. Real-time cognitive telemetry powered by computer vision — entirely in your browser.",
+    creator: "@mattiarchina",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

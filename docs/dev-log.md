@@ -321,9 +321,53 @@ File da creare:
 - `components/summary/StateBadge.tsx` — badge tipo "Tunnel Vision", "Sleep-Deprived Wizard"
 - `components/summary/StateTimeline.tsx` — timeline stati sessione
 
+---
+
+## Fase 8 — Session Summary ✅ COMPLETATA
+
+**Data:** 2026-04-09
+
+### Cosa è stato fatto
+
+- `lib/utils/session-storage.ts` — serializzazione sessione:
+  - `saveSession()` / `loadSession()` via `localStorage` (client-only, no backend)
+  - `deriveStats()` — calcola: avg/peak focus, dominant state, state breakdown %, duration
+  - `StoredSession` e `SessionStats` tipizzati
+
+- `lib/utils/badges.ts` — sistema badge:
+  - 8 badge con condizione, label, icon, colore, descrizione
+  - `assignBadges(stats)` → max 3 badge earned
+  - `generateVerdict(stats, badges)` → frase finale contestuale (7 varianti)
+  - Badge: Tunnel Vision, The Professional, Sleep-Deprived Wizard, Chaos Agent, Confused Genius, Ghost Mode, Peak Performer, Marathon Runner
+
+- `components/summary/SummaryStats.tsx` — 4 stat card animate (avg focus, peak focus, duration, dominant state)
+
+- `components/summary/BadgeDisplay.tsx` — badge con spring animation e glassmorphism
+
+- `components/summary/StateTimeline.tsx` — barra timeline colorata per stato + legenda
+
+- `app/(product)/summary/page.tsx` — pagina completa:
+  - Legge da localStorage al mount
+  - Title + verdict, SummaryStats, BadgeDisplay, StateTimeline, MetricChart full-session, StateBreakdown (barre %)
+  - CTA "Start New Session" e "Back to Home"
+  - Gestisce il caso "no session data" con redirect a /dashboard
+
+- `DashboardShell.tsx` aggiornato:
+  - Click "End Session" → `saveSession()` → webcam.stop() → navigate /summary
+
+### Note tecniche
+
+- `localStorage` usato perché il processing è già client-side; nessun bisogno di stato globale
+- `summary/page.tsx` ha `"use client"` perché legge localStorage nell'`useEffect`
+- TypeScript fix: tipo interno `{ state, count }[]` separato da `Segment` per buildSegments
+
+### Prossimo step
+
+→ **Fase 9 — Polish finale** (microinterazioni, skeleton, performance, metadata, og image)
+
 ## Fasi future
 
-- Fase 8 — Session Summary
+- Fase 9 — Polish finale
 - Fase 4 — Vision engine (MediaPipe)
 - Fase 5 — Metrics engine
 - Fase 6 — Dashboard real-time
