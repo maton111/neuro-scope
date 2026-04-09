@@ -43,3 +43,11 @@ next-env.d.ts
 
 # Roadmap
 roadmap_progetto.md
+
+# Claude Code
+AGENTS.md
+CLAUDE.md
+.claude/
+
+# Dev notes
+docs/dev-log.md
