@@ -181,7 +181,7 @@ function ScanLine() {
 function StatusBar({ duration }: { duration?: number }) {
   const formatted = duration !== undefined ? formatDuration(duration) : null;
   return (
-    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+    <div className="absolute bottom-4 left-5 flex items-center gap-2">
       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#00f5d4]" />
       <span className="font-mono text-[9px] text-[#00f5d4]/70">
         LIVE{formatted ? ` · ${formatted}` : ""}

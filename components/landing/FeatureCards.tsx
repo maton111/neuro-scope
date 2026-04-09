@@ -9,35 +9,35 @@ const features = [
     title: "Face Tracking",
     description:
       "MediaPipe Face Landmarker processes 468 facial landmarks per frame, entirely in your browser. No server. No upload.",
-    tag: "Computer Vision",
+    tag: " Computer Vision",
   },
   {
     icon: Brain,
     title: "Cognitive State Engine",
     description:
       "Heuristic algorithms translate raw signals into recognizable states: Focused, Locked In, Distracted, Fatigued, Confused Genius.",
-    tag: "Signal Processing",
+    tag: " Signal Processing",
   },
   {
     icon: BarChart3,
     title: "Synthetic Metrics",
     description:
       "Focus Score, Gaze Stability, Motion Level, Fatigue Signal — smoothed over time with rolling averages to avoid noise.",
-    tag: "Analytics",
+    tag: " Analytics",
   },
   {
     icon: MessageSquare,
     title: "Commentary Engine",
     description:
       "Rule-based feedback system with three distinct tones: Roast, Coach, and Corporate. Always contextual. Never random.",
-    tag: "AI-Adjacent",
+    tag: " AI-Adjacent",
   },
   {
     icon: Layers,
     title: "Session Summary",
     description:
       "At the end of each session, a shareable recap: your peak focus, dominant state, timeline, and a verdict badge.",
-    tag: "Reporting",
+    tag: " Reporting",
   },
 ];
 

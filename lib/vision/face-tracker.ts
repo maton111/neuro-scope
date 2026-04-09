@@ -9,6 +9,27 @@ const WASM_CDN = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/w
 const MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
+// MediaPipe WASM (Emscripten) writes internal logs via console.error/warn at module
+// load time — these are bound before our code runs and trigger the Next.js dev overlay.
+// Filter known-harmless patterns so they don't surface as overlay errors.
+const MEDIAPIPE_LOG_RE =
+  /XNNPACK|TensorFlow Lite|Feedback manager|FaceBlendshapes|gl_context|OpenGL|inference_feedback/i;
+
+if (typeof window !== "undefined") {
+  const _error = console.error.bind(console);
+  const _warn = console.warn.bind(console);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  console.error = (msg: any, ...args: any[]) => {
+    if (typeof msg === "string" && MEDIAPIPE_LOG_RE.test(msg)) return;
+    _error(msg, ...args);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  console.warn = (msg: any, ...args: any[]) => {
+    if (typeof msg === "string" && MEDIAPIPE_LOG_RE.test(msg)) return;
+    _warn(msg, ...args);
+  };
+}
+
 export async function initFaceTracker(): Promise<void> {
   if (faceLandmarker) return;
 
@@ -17,7 +38,7 @@ export async function initFaceTracker(): Promise<void> {
   const vision = await FilesetResolver.forVisionTasks(WASM_CDN);
 
   faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+    baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" },
     runningMode: "VIDEO",
     numFaces: 1,
     minFaceDetectionConfidence: 0.5,
