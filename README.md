@@ -10,7 +10,7 @@ NeuroScope uses your webcam and computer vision to track facial signals while yo
 
 ## Live Demo
 
-> **[neuroscope.vercel.app](https://neuroscope.vercel.app)**
+> **[neuro-scope-fxy1.vercel.app](https://neuro-scope-fxy1.vercel.app)**
 
 ---
 
@@ -29,9 +29,9 @@ NeuroScope uses your webcam and computer vision to track facial signals while yo
 
 ## Screenshots
 
-| Landing | Dashboard | Summary |
-|---------|-----------|---------|
-| *(add screenshot)* | *(add screenshot)* | *(add screenshot)* |
+| Landing                       | Dashboard                       | Summary                       |
+|-------------------------------|---------------------------------|-------------------------------|
+| ![Landing](./app/landing.png) | ![Dashboard](./app/dashboard.png) | ![Summary](./app/summary.png) |
 
 ---
 
