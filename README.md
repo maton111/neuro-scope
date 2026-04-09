@@ -121,7 +121,7 @@ useCommentary      — fires contextual comments with cooldown + state stability
 
 ```bash
 # 1. Clone
-git clone https://github.com/mattiarchina/neuroscope
+git clone https://github.com/maton111/neuro-scope
 cd neuroscope
 
 # 2. Install
@@ -214,7 +214,7 @@ NeuroScope is not a scientific tool. All metrics are heuristic-based, intentiona
 
 ## Author
 
-**Mattia Archina**
+**Mattia Archinà**
 
 ---
 

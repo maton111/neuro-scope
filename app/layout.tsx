@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   description:
     "Browser-based real-time system that analyzes your apparent cognitive state while you work. Face tracking, synthetic metrics, live dashboard. No data leaves your browser.",
   keywords: ["focus tracker", "productivity", "computer vision", "mediapipe", "real-time", "cognitive state"],
-  authors: [{ name: "Mattia Archina" }],
-  creator: "Mattia Archina",
+  authors: [{ name: "Mattia Archinà" }],
+  creator: "Mattia Archinà",
   openGraph: {
     title: "NeuroScope — Real-time Cognitive Presence Analysis",
     description:

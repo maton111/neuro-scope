@@ -19,7 +19,7 @@ export default function LandingPage() {
       </div>
       <CtaSection />
       <footer className="border-t border-white/6 px-6 py-8 text-center font-mono text-xs text-muted-foreground">
-        NeuroScope · Built by Mattia Archina · MIT License
+        NeuroScope · Built by Mattia Archinà · MIT License
       </footer>
     </div>
   );
